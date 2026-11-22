@@ -1,8 +1,10 @@
 import "./style.css";
 console.log("La boutique démarre");
-import type { Produit } from "./types.ts";
+import type { LignePanier, Produit } from "./types.ts";
 import { formatPrix } from "./outils.ts";
 import { catalogue } from "./catalogue.ts";
+import {ajouterAuPanier, retirerDuPanier, nombreArticles, totalPanier} from "./panier.ts";
+
 
 
 function trouver<T extends HTMLElement>(selecteur: string): T {
@@ -40,12 +42,17 @@ function creerCarte(produit: Produit): HTMLElement {
   // Créer le bouton
   const bouton = document.createElement("button");
 
-  if (produit.stock === 0) {
-    bouton.textContent = "Épuisé";
-    bouton.disabled = true;
-  } else {
-    bouton.textContent = "Ajouter au panier";
-  }
+ if (produit.stock === 0) {
+  bouton.textContent = "Épuisé";
+  bouton.disabled = true;
+} else {
+  bouton.textContent = "Ajouter au panier";
+
+  bouton.addEventListener("click", () => {
+    panier = ajouterAuPanier(panier, produit);
+    afficherPanier();
+  });
+}
 
   // Ajouter les éléments dans la carte
   carte.append(titre, prix, bouton);
@@ -57,3 +64,35 @@ function afficherCatalogue(): void {
   zoneCatalogue.replaceChildren(...catalogue.map(creerCarte));
 }
 afficherCatalogue();
+
+let panier: LignePanier[] = [];
+
+function creerLignePanier(ligne: LignePanier): HTMLLIElement {
+  const element = document.createElement("li");
+
+  element.textContent =
+    `${ligne.quantite} x ${ligne.produit.nom} : ${formatPrix(ligne.produit.prix)}`;
+
+  const bouton = document.createElement("button");
+  bouton.textContent = "Retirer";
+
+  bouton.addEventListener("click", () => {
+    panier = retirerDuPanier(panier, ligne.produit.id);
+    afficherPanier();
+  });
+
+  element.append(bouton);
+
+  return element;
+}
+
+
+function afficherPanier(): void {
+  listePanier.replaceChildren(...panier.map(creerLignePanier));
+
+  zoneTotal.textContent = formatPrix(totalPanier(panier));
+
+  compteur.textContent = String(nombreArticles(panier));
+}
+afficherCatalogue();
+afficherPanier();
