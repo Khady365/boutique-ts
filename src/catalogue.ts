@@ -8,3 +8,4 @@ export const catalogue: Produit[] = [
   { id: 5, nom: "Sac en wax", prix: 9500, categorie: "accessoires", stock: 4 },
   { id: 6, nom: "Panier tressé", prix: 6000, categorie: "maison", stock: 7 },
 ];
+
